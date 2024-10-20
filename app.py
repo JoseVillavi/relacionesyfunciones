@@ -937,4 +937,5 @@ def pagina9():
     return render_template('pagina9.html')
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    port = int(os.environ.get('PORT', 5000))  # Usa el puerto proporcionado por Render o 5000 por defecto
+    app.run(host='0.0.0.0', port=port)
