@@ -937,4 +937,4 @@ def pagina9():
     return render_template('pagina9.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
