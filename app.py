@@ -8,6 +8,7 @@ import networkx as nx
 import io
 import base64
 import numpy as np
+import os
 
 app = Flask(__name__)
 
