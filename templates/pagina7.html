@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funciones Inyectivas</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="/" class="nav-button">Inicio</a>
+        <a href="/pagina8" class="nav-button">Funciones sobreyectivas</a>
+        <a href="/pagina9" class="nav-button">Funciones biyectivas</a>
+    </nav>
+
+    <header>
+        <h1>Funciones Inyectivas</h1>
+    </header>
+
+    <section class="explicacion">
+        <p>
+            "Una función f: X → Y se denomina uno a uno (1-1) o inyectiva o inyección, si distintos elementos de X se mapean hacia distintos elementos de Y."
+        </p>
+        <p>
+            Un ejemplo de una función inyectiva sería aquella que tiene como dominio ['m', 'j', 'i', 'k', 'c'], como codominio ['n', 'w', 'j', 'y', 'r'] 
+             y sus relaciones son (w → e), (r → o), (u → i), (t → p). Ya que como observamos, ningun elemto del dominio tiene relación con mas
+             de un elemento del codominio.
+        </p>
+
+        <blockquote>
+            Veerarajan, T. (2008). Matemáticas discretas: con teoría de gráficas y combinatoria. McGraw-Hill Interamericana.
+        </blockquote>
+    </section>
+
+    <section class="imagen-explicacion">
+        <img src="{{ url_for('static', filename='images/inyectiva.png') }}" alt="Ejemplos funciones inyectivas" width="100%">
+    </section>
+
+    <section class="boton-generar">
+        <form id="relacionForm">
+            <input type="number" id="n" name="n" value="5" min="1" style="display:none;">
+            <button type="submit" class="popup-button">Vamos a practicar</button>
+        </form>
+    </section>
+
+    <div id="overlay"></div>
+
+    <div id="popup-reflexiva">
+        <h2>¿Esta función es inyectiva?</h2>
+        <div id="conjunto-relacion"></div>
+        <button id="si-button" class="popup-button">Sí</button>
+        <button id="no-button" class="popup-button">No</button>
+        <button id="generar-otro-button" class="popup-button">Generar otra</button>
+        <button id="cerrar-button" class="popup-button">Cerrar</button>
+        <div id="retroalimentacion"></div>
+    </div>
+
+    <script>
+        document.getElementById('cerrar-button').addEventListener('click', function () {
+            cerrarPopup();
+        });
+
+        function cerrarPopup() {
+            document.getElementById('popup-reflexiva').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            limpiarRetroalimentacion();
+        }
+
+        document.getElementById('relacionForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            generarFuncion();
+        });
+
+        function generarFuncion() {
+            const n = document.getElementById('n').value;
+
+            fetch('/generar_inyectiva', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `n=${n}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const conjuntoRelacionDiv = document.getElementById('conjunto-relacion');
+                conjuntoRelacionDiv.innerHTML = `<p>${data.descripcion}</p>
+                                                 <p>Relaciones: ${data.relacion_texto}</p>
+                                                 <img src="${data.imagen}" alt="Gráfico de la función">`;
+
+                document.getElementById('popup-reflexiva').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            });
+        }
+
+        document.getElementById('si-button').addEventListener('click', function () {
+            evaluarRespuesta(true);
+        });
+
+        document.getElementById('no-button').addEventListener('click', function () {
+            evaluarRespuesta(false);
+        });
+
+        function evaluarRespuesta(respuestaUsuario) {
+            fetch('/evaluar_inyectiva', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ respuesta: respuestaUsuario })
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarRetroalimentacion(data.mensaje, data.correcto);
+            });
+        }
+
+        function mostrarRetroalimentacion(mensaje, correcto) {
+            const retroalimentacionDiv = document.getElementById('retroalimentacion');
+            retroalimentacionDiv.innerText = mensaje;
+            retroalimentacionDiv.style.display = 'block';
+            retroalimentacionDiv.style.backgroundColor = correcto ? 'green' : 'red';
+        }
+
+        function limpiarRetroalimentacion() {
+            const retroalimentacionDiv = document.getElementById('retroalimentacion');
+            retroalimentacionDiv.innerText = '';
+            retroalimentacionDiv.style.display = 'none';
+        }
+
+        document.getElementById('generar-otro-button').addEventListener('click', function () {
+            generarOtraFuncion();
+        });
+
+        function generarOtraFuncion() {
+            const n = document.getElementById('n').value;
+
+            const conjuntoRelacionDiv = document.getElementById('conjunto-relacion');
+            conjuntoRelacionDiv.innerHTML = '';
+
+            limpiarRetroalimentacion();  // Limpiar retroalimentación al generar otra función
+
+            fetch('/generar_inyectiva', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `n=${n}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                conjuntoRelacionDiv.innerHTML = `<p>${data.descripcion}</p>
+                                                 <p>Relaciones: ${data.relacion_texto}</p>
+                                                 <img src="${data.imagen}" alt="Gráfico de la función">`;
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relaciones Reflexivas</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="/" class="nav-button">Inicio</a>
+        <a href="/pagina2" class="nav-button">Relaciones irreflexivas</a>
+        <a href="/pagina3" class="nav-button">Relaciones simetricas</a>
+        <a href="/pagina4" class="nav-button">Relaciones antisimétricas</a>
+        <a href="/pagina5" class="nav-button">Relaciones transitivas</a>
+        <a href="/pagina6" class="nav-button">Relaciones intransitivas</a>
+    </nav>
+
+    <header>
+        <h1>Relaciones Reflexivas</h1>
+    </header>
+
+    <section class="explicacion">
+        <p>
+            "Una relación R sobre un conjunto A se dice que es reflexiva si a R a para toda a ∈ A, es decir, si (a,a) ∈ R para toda a ∈ A" 
+        </p>
+        <p>
+            Por ejemplo, en un conjunto {a, b, c}, una relación reflexiva incluiría los pares 
+            (a, a), (b, b), y (c, c).
+        </p>
+
+        <blockquote>
+            Veerarajan, T. (2008). Matemáticas discretas: con teoría de gráficas y combinatoria. McGraw-Hill Interamericana.
+        </blockquote>
+    </section>
+
+    <section class="imagen-explicacion">
+        <img src="{{ url_for('static', filename='images/r_reflexiva.png') }}" alt="Ejemplos relaciones reflexivas" width="100%">
+    </section>
+
+    <section class="boton-generar">
+        <form id="relacionForm">
+            <input type="number" id="n" name="n" value="5" min="1" style="display:none;">
+            <button type="submit" class="popup-button">Vamos a practicar</button>
+        </form>
+    </section>
+
+    <div id="overlay"></div>
+
+    <div id="popup-reflexiva">
+        <h2>¿Esta relación es reflexiva?</h2>
+        <div id="conjunto-relacion"></div>
+        <button id="si-button" class="popup-button">Sí</button>
+        <button id="no-button" class="popup-button">No</button>
+        <button id="generar-otro-button" class="popup-button">Generar otro</button>
+        <button id="cerrar-button" class="popup-button">Cerrar</button>
+        <div id="retroalimentacion"></div>
+    </div>
+
+    <script>
+        document.getElementById('cerrar-button').addEventListener('click', function () {
+            cerrarPopup();
+        });
+
+        function cerrarPopup() {
+            document.getElementById('popup-reflexiva').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            limpiarRetroalimentacion();
+        }
+
+        document.getElementById('relacionForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            generarRelacion();
+        });
+
+        function generarRelacion() {
+            const n = document.getElementById('n').value;
+
+            fetch('/generar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `n=${n}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const conjuntoRelacionDiv = document.getElementById('conjunto-relacion');
+                conjuntoRelacionDiv.innerHTML = `<p>Conjunto: { ${data.conjunto.join(', ')} }</p>
+                                                 <p>Relación: ${data.relacion.map(r => `(${r[0]}, ${r[1]})`).join(', ')}</p>
+                                                 <img src="${data.imagen}" alt="Gráfico de la relación">`;
+
+                document.getElementById('popup-reflexiva').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            });
+        }
+
+        document.getElementById('si-button').addEventListener('click', function () {
+            evaluarRespuesta(true);
+        });
+
+        document.getElementById('no-button').addEventListener('click', function () {
+            evaluarRespuesta(false);
+        });
+
+        function evaluarRespuesta(respuestaUsuario) {
+            fetch('/evaluar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ respuesta: respuestaUsuario })
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarRetroalimentacion(data.mensaje, data.correcto);
+            });
+        }
+
+        function mostrarRetroalimentacion(mensaje, correcto) {
+            const retroalimentacionDiv = document.getElementById('retroalimentacion');
+            retroalimentacionDiv.innerText = mensaje;
+            retroalimentacionDiv.style.display = 'block';
+            retroalimentacionDiv.style.backgroundColor = correcto ? 'green' : 'red';
+        }
+
+        function limpiarRetroalimentacion() {
+            const retroalimentacionDiv = document.getElementById('retroalimentacion');
+            retroalimentacionDiv.innerText = '';
+            retroalimentacionDiv.style.display = 'none';
+        }
+
+        document.getElementById('generar-otro-button').addEventListener('click', function () {
+            generarOtraRelacion();
+        });
+
+        function generarOtraRelacion() {
+            const n = document.getElementById('n').value;
+
+            const conjuntoRelacionDiv = document.getElementById('conjunto-relacion');
+            conjuntoRelacionDiv.innerHTML = '';
+
+            limpiarRetroalimentacion();
+
+            fetch('/generar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `n=${n}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                conjuntoRelacionDiv.innerHTML = `<p>Conjunto: { ${data.conjunto.join(', ')} }</p>
+                                                 <p>Relación: ${data.relacion.map(r => `(${r[0]}, ${r[1]})`).join(', ')}</p>
+                                                 <img src="${data.imagen}" alt="Gráfico de la relación">`;
+            });
+        }
+    </script>
+
+</body>
+</html>

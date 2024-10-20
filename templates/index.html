@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="/pagina1" class="nav-button">Relaciones</a>
+        <a href="/pagina7" class="nav-button">Funciones</a>
+    </nav>
+
+    <header>
+        <h1>Aprende relaciones y funciones</h1>
+    </header>
+    <section class="explicacion">
+        <p>
+            El estudio del tema de funciones es básico para lograr comprender muchos otros temas que se
+irán viendo más adelante en el curso de matemática, además es importante porque se le puede
+dar muchos usos en la “vida diaria” ya que generalmente se hace uso de las funciones reales,
+(aún cuando el ser humano no se da cuenta), en el manejo de cifras numéricas en
+correspondencia con otra, debido a que se está usando subconjuntos de los números reales.
+Las funciones son de mucho valor y utilidad para resolver problemas de la vida diaria,
+problemas de finanzas, de economía, de estadística, de ingeniería, de medicina, de química y
+física, de astronomía, de geología, y de cualquier área social donde haya que relacionar
+variables
+        </p>
+    </section>
+
+    <section class="imagen-home">
+        <img src="{{ url_for('static', filename='images/Goyo.png') }}" alt="Goyo maestro" width="100%">
+    </section>
+</body>
+</html>
