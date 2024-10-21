@@ -18,12 +18,13 @@ body, html {
     background-color: #012a56;
     color: white;
     padding: 10px 15px;
-    margin: 10px;
     border: 2px solid white;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
     text-decoration: none;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .nav-button:hover {
@@ -138,6 +139,10 @@ blockquote a:hover {
     padding: 10px;
     border-radius: 5px;
     display: none;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
