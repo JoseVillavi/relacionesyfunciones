@@ -610,63 +610,81 @@ def evaluar_inyectiva():
 def generar_funcion_sobreyectiva():
     """
     Genera una función sobreyectiva con un dominio y un codominio de tamaños variables.
-    En este caso, todos los elementos del codominio tendrán al menos una relación con el dominio.
-
+    Todos los elementos del codominio tienen al menos una preimagen en el dominio.
     """
-    tamaño_dom = random.randint(4, 6)
-    tamaño_cod = random.randint(4, 6)
+    tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
+    tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
 
-    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))
-    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))
+    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
+    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
 
-    subconjunto_dom = random.choices(conjunto_dom, k=tamaño_cod)
-    relacion = list(zip(subconjunto_dom, conjunto_cod))
+    # Crear relaciones para que todos los elementos del codominio tengan al menos una preimagen
+    relaciones = []
+    usados_cod = set()  # Para controlar las relaciones asignadas
+
+    # Aseguramos cubrir todo el codominio
+    for b in conjunto_cod:
+        a = random.choice(conjunto_dom)
+        relaciones.append((a, b))
+        usados_cod.add(b)
+
+    # Agregar relaciones adicionales desde el dominio al codominio para completar la función
+    while len(relaciones) < tamaño_dom:
+        a = random.choice(conjunto_dom)
+        b = random.choice(conjunto_cod)
+        if (a, b) not in relaciones:
+            relaciones.append((a, b))
 
     descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
     es_sobreyectiva = True
 
-    return relacion, descripcion, es_sobreyectiva
+    return relaciones, descripcion, es_sobreyectiva
 
 
 def generar_funcion_no_sobreyectiva():
     """
     Genera una función no sobreyectiva con un dominio y un codominio de tamaños variables.
-    En este caso, no todos los elementos del codominio tendrán una relación con el dominio.
-
+    Al menos un elemento del codominio no tendrá ninguna preimagen en el dominio.
     """
-    tamaño_dom = random.randint(4, 6)
-    tamaño_cod = random.randint(4, 6)
+    tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
+    tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
 
-    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))
-    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))
+    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
+    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
 
-    subconjunto_cod = random.sample(conjunto_cod, random.randint(1, tamaño_cod - 1))
-    subconjunto_dom = random.choices(conjunto_dom, k=len(subconjunto_cod))
-    relacion = list(zip(subconjunto_dom, subconjunto_cod))
+    # Generar subconjunto del codominio dejando al menos un elemento sin relación
+    subconjunto_cod = random.sample(conjunto_cod, random.randint(1, len(conjunto_cod) - 1))
+    relaciones = []
+
+    # Asignar relaciones sin cubrir todo el codominio
+    for b in subconjunto_cod:
+        a = random.choice(conjunto_dom)
+        relaciones.append((a, b))
 
     descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
     es_sobreyectiva = False
 
-    return relacion, descripcion, es_sobreyectiva
+    return relaciones, descripcion, es_sobreyectiva
 
 
 @app.route('/generar_sobreyectiva', methods=['POST'])
 def generar_sobreyectiva():
     """
     Genera una función sobreyectiva o no sobreyectiva y devuelve su representación y gráfico.
-
     """
     if random.random() < 0.5:
-        relacion, descripcion, es_sobreyectiva = generar_funcion_sobreyectiva()
+        relaciones, descripcion, es_sobreyectiva = generar_funcion_sobreyectiva()
     else:
-        relacion, descripcion, es_sobreyectiva = generar_funcion_no_sobreyectiva()
+        relaciones, descripcion, es_sobreyectiva = generar_funcion_no_sobreyectiva()
 
     global es_sobreyectiva_actual
-    es_sobreyectiva_actual = es_sobreyectiva
+    es_sobreyectiva_actual = es_sobreyectiva  # Almacena si la función es sobreyectiva
 
-    imagen = generar_imagen_dominio_codonimo(relacion)
+    # Generar la imagen que muestre la relación en el plano cartesiano
+    imagen = generar_imagen_dominio_codonimo(relaciones)
 
-    relaciones_texto = ', '.join([f'({a} → {b})' for a, b in relacion])
+    # Crear la representación en texto de las relaciones del dominio y codominio
+    relaciones_texto = ', '.join([f'({a} → {b})' for a, b in relaciones])
 
     return jsonify({
         'descripcion': descripcion,
