@@ -612,32 +612,33 @@ def generar_funcion_sobreyectiva():
     Genera una función sobreyectiva con un dominio y un codominio de tamaños variables.
     Garantiza que todos los elementos del codominio tengan al menos una preimagen en el dominio.
     """
-    tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
-    tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
+    while True:  # Aseguramos que se genera una función válida en un solo intento
+        tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
+        tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
 
-    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
-    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
+        conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
+        conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
 
-    relaciones = []
-    usados_dom = set()  # Para controlar los elementos del dominio ya relacionados
+        relaciones = []
+        usados_dom = set()  # Para controlar los elementos del dominio ya relacionados
 
-    # Asegurar cobertura del codominio
-    for b in conjunto_cod:
-        a = random.choice([x for x in conjunto_dom if x not in usados_dom])
-        relaciones.append((a, b))
-        usados_dom.add(a)
+        # Asegurar que todos los elementos del codominio tengan al menos una relación
+        for b in conjunto_cod:
+            a = random.choice([x for x in conjunto_dom if x not in usados_dom] or conjunto_dom)
+            relaciones.append((a, b))
+            usados_dom.add(a)
 
-    # Relacionar el resto de elementos del dominio si sobran
-    elementos_restantes = [x for x in conjunto_dom if x not in usados_dom]
-    while elementos_restantes:
-        a = elementos_restantes.pop()
-        b = random.choice(conjunto_cod)
-        relaciones.append((a, b))
+        # Relacionar el resto de elementos del dominio si sobran
+        elementos_restantes = [x for x in conjunto_dom if x not in usados_dom]
+        while elementos_restantes:
+            a = elementos_restantes.pop()
+            b = random.choice(conjunto_cod)
+            relaciones.append((a, b))
 
-    descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
-    es_sobreyectiva = True
-
-    return relaciones, descripcion, es_sobreyectiva
+        # Validar que la relación es sobreyectiva
+        if len(set(b for _, b in relaciones)) == len(conjunto_cod):
+            descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
+            return relaciones, descripcion, True
 
 
 def generar_funcion_no_sobreyectiva():
@@ -645,35 +646,35 @@ def generar_funcion_no_sobreyectiva():
     Genera una función no sobreyectiva con un dominio y un codominio de tamaños variables.
     Al menos un elemento del codominio no tendrá ninguna preimagen en el dominio.
     """
-    tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
-    tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
+    while True:  # Aseguramos que se genera una función válida en un solo intento
+        tamaño_dom = random.randint(4, 6)  # Tamaño del dominio aleatorio entre 4 y 6
+        tamaño_cod = random.randint(4, 6)  # Tamaño del codominio aleatorio entre 4 y 6
 
-    conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
-    conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
+        conjunto_dom = list(random.sample(string.ascii_lowercase, tamaño_dom))  # Dominio
+        conjunto_cod = list(random.sample(string.ascii_lowercase, tamaño_cod))  # Codominio
 
-    # Generar subconjunto del codominio dejando al menos un elemento sin asignación
-    subconjunto_cod = random.sample(conjunto_cod, random.randint(1, len(conjunto_cod) - 1))
-    relaciones = []
-    usados_dom = set()
+        # Generar subconjunto del codominio dejando al menos un elemento sin asignación
+        subconjunto_cod = random.sample(conjunto_cod, random.randint(1, len(conjunto_cod) - 1))
+        relaciones = []
+        usados_dom = set()
 
-    # Relacionar elementos del subconjunto del codominio con el dominio
-    for b in subconjunto_cod:
-        a = random.choice([x for x in conjunto_dom if x not in usados_dom])
-        relaciones.append((a, b))
-        usados_dom.add(a)
+        # Relacionar elementos del subconjunto del codominio con el dominio
+        for b in subconjunto_cod:
+            a = random.choice([x for x in conjunto_dom if x not in usados_dom] or conjunto_dom)
+            relaciones.append((a, b))
+            usados_dom.add(a)
 
-    # Relacionar el resto de elementos del dominio si sobran
-    elementos_restantes = [x for x in conjunto_dom if x not in usados_dom]
-    while elementos_restantes:
-        a = elementos_restantes.pop()
-        b = random.choice(subconjunto_cod)
-        relaciones.append((a, b))
+        # Relacionar el resto de elementos del dominio si sobran
+        elementos_restantes = [x for x in conjunto_dom if x not in usados_dom]
+        while elementos_restantes:
+            a = elementos_restantes.pop()
+            b = random.choice(subconjunto_cod)
+            relaciones.append((a, b))
 
-    descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
-    es_sobreyectiva = False
-
-    return relaciones, descripcion, es_sobreyectiva
-
+        # Validar que la relación no cubre todo el codominio
+        if len(set(b for _, b in relaciones)) < len(conjunto_cod):
+            descripcion = f"Dominio: {conjunto_dom} Codominio: {conjunto_cod}"
+            return relaciones, descripcion, False
 
 @app.route('/generar_sobreyectiva', methods=['POST'])
 def generar_sobreyectiva():
